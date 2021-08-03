@@ -1,0 +1,67 @@
+## <html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>Triangle</title>
+		<script type="text/javascript" src="js/GLUtils.js"></script>
+		<script type="text/javascript" src="js/Matrix.js"></script>
+		<script type="text/javascript" src="js/MatrixState.js"></script>
+		<script type="text/javascript" src="js/Triangle.js"></script>
+		<script type="text/javascript" src="js/LoadShaderUtil.js"></script>
+		<script>
+			'use strict';
+			var gl;
+			var ms = new MatrixState();
+			var ooTri;
+			var shaderProgArray = new Array();
+			var currentAngle;
+			var incAngle;
+			var canvas;
+			function start() {
+				gl = initWebGLCanvas("bncanvas");
+				if(!gl)
+				{
+					alert("Failure to create GLES, do not support WebGL2.0!");
+					return;
+				}
+				gl.viewport(0, 0, canvas.width, canvas.height);
+				gl.clearColor(0.0, 0.0, 0.0, 1.0);
+				ms.setInitStack();
+				ms.setCamera(0, 0, -5, 0, 0, 0, 0, 1, 0);
+				ms.setProjectFrustum(-1.5, 1.5, -1, 1, 1, 100);
+				gl.enable(gl.DEPTH_TEST);
+				loadShaderFile("shader/vtrtex.bns", 0);
+				loadShaderFile("shader/fragment.bns", 0);
+				if(shaderProgArray[0]) {
+					ooTri = new Triangle(gl, shaderProgArray[0]);
+				} else {
+					setTimeout(function() {
+						ooTri = new Triangle(gl, shaderProgArray[0]);
+					}, 90);
+				}
+				currentAngle = 0;
+				incAngle = 0.4;
+				setInterval("drawFrame();", 16.6);
+			}
+			function drawFrame() {
+				if(!ooTri) {
+					console.log("Error Loading Unfinished");
+					return;
+				}
+				gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+				ms.pushMatrix();
+				ms.rotate(currentAngle, 0, 1, 0);
+				ooTri.drawSelf(ms);
+				ms.popMatrix();
+				currentAngle += incAngle;
+				if(currentAngle > 360)
+					currentAngle -= 360;
+			}
+		</script>
+	</head>
+
+	<body onload="start();">
+		<canvas height="800" width="1200" id="bncanvas">
+	    Your browser do not support WebGL!
+	</canvas>
+	</body>
+</html>
